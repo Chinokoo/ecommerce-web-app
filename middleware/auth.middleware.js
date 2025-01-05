@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
-export const auth = async (req, res) => {
+export const auth = async (req, res, next) => {
   try {
     const accessToken = req.cookies.accessToken;
 
@@ -10,7 +10,7 @@ export const auth = async (req, res) => {
         .status(401)
         .json({ message: "Unauthorized - No access token provided" });
 
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_SECRET_TOKEN);
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
 
     if (!decoded) return res.status(401).json({ message: "Unauthorized" });
 
@@ -19,6 +19,7 @@ export const auth = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not Found" });
 
     req.user = user;
+
     next();
   } catch (e) {
     console.log(e.message);
