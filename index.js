@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import authRouter from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import productRouter from "./routes/product.route.js";
+import cartRouter from "./routes/cart.route.js";
+import couponRouter from "./routes/coupon.route.js";
+import paymentsRouter from "./routes/payments.route.js";
 
 dotenv.config();
 
@@ -14,6 +17,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/coupon", couponRouter);
+app.use("/api/payments", paymentsRouter);
 
 const PORT = process.env.PORT;
 
