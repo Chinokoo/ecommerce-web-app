@@ -180,3 +180,12 @@ export const refreshToken = async (req, res) => {
     res.status(500).json({ message: "internal server error" });
   }
 };
+
+export const getProfile = async (req, res) => {
+  try {
+    res.json(req.user);
+  } catch (error) {
+    console.log("error in getProfile", error.message);
+    res.status(500).json({ message: "internal server error" });
+  }
+};

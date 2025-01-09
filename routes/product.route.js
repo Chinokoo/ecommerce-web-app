@@ -5,7 +5,7 @@ import {
   createProduct,
   deleteProduct,
   getRecommendedProducts,
-  getProductsByCategory,
+  getProductByCategory,
   toggleFeaturedProduct,
 } from "../controllers/product.controller.js";
 import { admin, auth } from "../middleware/auth.middleware.js";
@@ -23,7 +23,7 @@ productRouter.delete("/:id", auth, admin, deleteProduct);
 //get recommended products [authenticated users only].
 productRouter.get("/recommendations", auth, getRecommendedProducts);
 //get products by category [authenticated users only].
-productRouter.get("/category/:category", auth, getProductsByCategory);
+productRouter.get("/category/:category", auth, getProductByCategory);
 
 //update featured product [admin only].
 productRouter.patch("/:id", auth, admin, toggleFeaturedProduct);

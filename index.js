@@ -7,6 +7,7 @@ import productRouter from "./routes/product.route.js";
 import cartRouter from "./routes/cart.route.js";
 import couponRouter from "./routes/coupon.route.js";
 import paymentsRouter from "./routes/payments.route.js";
+import analyticsRouter from "./routes/analytics.route.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/payments", paymentsRouter);
+app.use("/api/analytics", analyticsRouter);
 
 const PORT = process.env.PORT;
 
