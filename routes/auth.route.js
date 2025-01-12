@@ -6,6 +6,7 @@ import {
   refreshToken,
   getProfile,
 } from "../controllers/auth.controller.js";
+import { auth } from "../middleware/auth.middleware.js";
 
 const authRouter = express.Router();
 
@@ -16,10 +17,10 @@ authRouter.post("/signup", signup);
 authRouter.post("/signin", signin);
 
 //signing up the user
-authRouter.post("/signout", signout);
+authRouter.post("/signout", auth, signout);
 
 authRouter.post("/refresh-token", refreshToken);
 
-authRouter.get("/profile", getProfile);
+authRouter.get("/profile", auth, getProfile);
 
 export default authRouter;

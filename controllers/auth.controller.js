@@ -46,17 +46,15 @@ export const signup = async (req, res) => {
     if (name == null || password == null || email == null)
       return res.status(400).json({ message: "Enter all fields." });
 
-    if (name.length < 3 || name == null)
+    if (name.length < 3)
       return res.status(400).json({
         message: "name must be at least 3 characters long or  name is empty",
       });
-    if (password.length < 3 || password == null)
+    if (password.length < 7)
       return res.status(400).json({
         message:
           "password must be at least 7 characters long or  password is empty",
       });
-    if (email == null)
-      return res.status(400).json({ message: "email is empty" });
 
     let user = await User.findOne({ email });
     if (user)
