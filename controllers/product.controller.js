@@ -9,7 +9,7 @@ export const createProduct = async (req, res) => {
     let cloudinaryResponse = null;
 
     if (image)
-      cloudinaryResponse = await cloudinary.uploader(image, {
+      cloudinaryResponse = await cloudinary.uploader.upload(image, {
         folder: "products",
       });
 
@@ -25,13 +25,14 @@ export const createProduct = async (req, res) => {
 
     res.status(201).json({ product, message: "product created successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
 
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({ createdAt: -1 });
     if (!products)
       return res.status(404).json({ message: "products not found" });
 
@@ -111,7 +112,7 @@ export const getProductByCategory = async (req, res) => {
     res.status(200).json({ products });
   } catch (error) {
     res.status(500).json({ message: error.message });
-    console.log("errror in getProductByCategory", error);
+    console.log("error in getProductByCategory", error);
   }
 };
 
@@ -126,7 +127,7 @@ export const toggleFeaturedProduct = async (req, res) => {
     res.status(200).json({ product: updatedProduct });
   } catch (error) {
     res.status(500).json({ message: error.message });
-    console.log("errror in toggleFeaturedProduct", error);
+    console.log("error in toggleFeaturedProduct", error);
   }
 };
 
