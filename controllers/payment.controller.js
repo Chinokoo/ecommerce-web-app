@@ -1,5 +1,7 @@
 import Coupon from "../models/coupon.model.js";
 import { stripe } from "../utils/stripe.js";
+import Order from "../models/order.model.js";
+import User from "../models/user.model.js";
 
 export const createCheckoutSession = async (req, res) => {
   try {
@@ -21,6 +23,7 @@ export const createCheckoutSession = async (req, res) => {
           },
           unit_amount: amount,
         },
+        quantity: product.quantity || 1,
       };
     });
     let coupon = null;
@@ -43,8 +46,8 @@ export const createCheckoutSession = async (req, res) => {
       success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/purchase-cancel`,
       metadata: {
-        userId: req.user._id,
-        couponCode: coupon.code || "",
+        userId: req.user._id.toString(),
+        couponCode: coupon?.code || "",
         products: JSON.stringify(
           products.map((product) => ({
             id: product._id,
@@ -62,7 +65,7 @@ export const createCheckoutSession = async (req, res) => {
 
     res.status(200).json({ id: session.id, totalAmount: totalAmount / 100 });
   } catch (error) {
-    console.log("error in createCheckoutSession", error.message);
+    console.log("error in createCheckoutSession", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -89,6 +92,7 @@ async function createNewCoupon(userId) {
 
 export const checkoutSuccess = async (req, res) => {
   try {
+    let user = req.user;
     const { session_id } = req.body;
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
@@ -102,6 +106,7 @@ export const checkoutSuccess = async (req, res) => {
           { isActive: false }
         );
       }
+
       //create new order.
       const products = JSON.parse(session.metadata.products);
       const newOrder = new Order({
@@ -112,19 +117,21 @@ export const checkoutSuccess = async (req, res) => {
           price: product.price,
         })),
         totalAmount: session.amount_total / 100,
-        stripeSessionId: sessionId,
+        stripeSessionId: session_id,
       });
 
       await newOrder.save();
-      res
-        .status(200)
-        .json({
-          message:
-            "Payment successful, order created and coupon deactivated if used",
-        });
+      await User.updateOne(
+        { _id: user._id },
+        { $set: { cartItems: [] } },
+        { new: true }
+      );
+      res.status(200).json({
+        message:
+          "Payment successful, order created and coupon deactivated if used",
+      });
     }
   } catch (error) {
     console.log("error in checkoutSuccess", error.message);
-    res.status(500).json({ message: error.message });
   }
 };

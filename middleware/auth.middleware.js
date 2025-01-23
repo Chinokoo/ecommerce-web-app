@@ -6,9 +6,7 @@ export const auth = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
 
     if (!accessToken)
-      return res
-        .status(401)
-        .json({ message: "Sign in to access this resource" });
+      return res.status(401).json({ message: "Sign in to buy products" });
 
     const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
 

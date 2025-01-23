@@ -1,3 +1,5 @@
+import Product from "../models/product.model.js";
+
 export const addToCart = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -72,9 +74,9 @@ export const getCartProducts = async (req, res) => {
       const item = req.user.cartItems.find(
         (cartItem) => cartItem.id === product.id
       );
-      return { ...product.toJson(), quantity: item.quantity };
+      return { ...product.toJSON(), quantity: item.quantity };
     });
-    res.json(cartItems);
+    res.json({ cartItems });
   } catch (error) {
     console.log("error in getCartProducts", error);
     res.status(500).send(error.message);

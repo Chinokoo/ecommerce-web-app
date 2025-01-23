@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { version } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
@@ -42,7 +42,8 @@ const userSchema = new mongoose.Schema(
       default: "customer",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
+  { versionKey: false }
 );
 
 //hashing the password b4 saving user to database

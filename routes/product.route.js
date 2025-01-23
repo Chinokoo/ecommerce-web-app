@@ -23,7 +23,7 @@ productRouter.delete("/:id", auth, admin, deleteProduct);
 //get recommended products [authenticated users only].
 productRouter.get("/recommendations", auth, getRecommendedProducts);
 //get products by category [authenticated users only].
-productRouter.get("/category/:category", auth, getProductByCategory);
+productRouter.get("/category/:category", getProductByCategory);
 
 //update featured product [admin only].
 productRouter.patch("/:id", auth, admin, toggleFeaturedProduct);
