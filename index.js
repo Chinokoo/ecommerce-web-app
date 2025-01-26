@@ -18,10 +18,10 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:5173/",
-      "https://ecommerce-web-app-frontend-ashy.vercel.app/",
+      "http://localhost:5173",
+      "https://ecommerce-web-app-frontend-ashy.vercel.app",
     ],
-    //credentials: true,
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
