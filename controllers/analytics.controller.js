@@ -13,40 +13,50 @@ export const getAnalytics = async (req, res) => {
     res.json({ analyticsData, dailySalesData });
   } catch (error) {
     console.log("error in getAnalytics", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: error.message });
   }
 };
 
 const getDailySalesData = async (startDate, endDate) => {
-  const dailySalesData = await Order.aggregate([
-    {
-      $match: {
-        createdAt: {
-          $gte: startDate,
-          $lt: endDate,
+  try {
+    const dailySalesData = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lt: endDate,
+          },
         },
       },
-    },
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        sales: { $sum: 1 },
-        revenue: { $sum: "$totalAmount" },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          sales: { $sum: 1 },
+          revenue: { $sum: "$totalAmount" },
+        },
       },
-    },
-    { $sort: { _id: 1 } },
-  ]);
+      { $sort: { _id: 1 } },
+    ]);
 
-  const dateArray = getDatesInRange(startDate, endDate);
+    const dateArray = getDatesInRange(startDate, endDate);
+    //console.log("dateArray", dateArray);
 
-  return dateArray.map((date) => {
-    const foundData = dailySalesData.find((item) => item._id === date);
-    return {
-      date,
-      sales: foundData.sales || 0,
-      revenue: foundData.revenue || 0,
-    };
-  });
+    return dateArray.map((date) => {
+      const foundData = dailySalesData.find((item) => {
+        // console.log("comparing:", item._id, "with", date);
+        return item._id === date;
+      });
+
+      return {
+        date,
+        sales: foundData?.sales || 0,
+        revenue: foundData?.revenue || 0,
+      };
+    });
+  } catch (error) {
+    console.error("error in the dailySalesData function", error);
+    return res.status(500).json({ message: error.message });
+  }
 };
 
 function getDatesInRange(startDate, endDate) {
@@ -54,9 +64,10 @@ function getDatesInRange(startDate, endDate) {
   let currentDate = new Date(startDate);
 
   while (currentDate <= endDate) {
-    dates.push(currentDate.toISOString().slice("T", [0]));
+    dates.push(currentDate.toISOString().split("T")[0]);
     currentDate.setDate(currentDate.getDate() + 1);
   }
+
   return dates;
 }
 
@@ -68,8 +79,8 @@ const getAnalyticsData = async () => {
     {
       $group: {
         _id: null,
-        totalSales: { $sum: "$totalAmount" },
-        totalOrders: { $sum: { $size: "$products" } },
+        totalSales: { $sum: 1 },
+        totalRevenue: { $sum: "$totalAmount" },
       },
     },
   ]);
