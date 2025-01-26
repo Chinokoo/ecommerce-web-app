@@ -26,14 +26,14 @@ const storeRefreshToken = async (userId, refreshToken) => {
 //setting cookies for accessToken and refreshToken
 const setCookie = (res, accessToken, refreshToken) => {
   res.cookie("accessToken", accessToken, {
-    httpOnly: true, //prevents client-side access to the cookie
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict", //prevents cross-site request forgery attacks
+    //httpOnly: true, //prevents client-side access to the cookie
+    //secure: process.env.NODE_ENV === "production",
+    //sameSite: "strict", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
   });
   res.cookie("refreshToken", refreshToken, {
     //httpOnly: true, //prevents client-side access to the cookie
-    secure: process.env.NODE_ENV === "production",
+    //secure: process.env.NODE_ENV === "production",
     //sameSite: "strict", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
   });
@@ -167,7 +167,7 @@ export const refreshToken = async (req, res) => {
     );
 
     res.cookie("accessToken", accessToken, {
-      httpOnly: true,
+      //httpOnly: true,
       //secure: process.env.NODE_ENV === "production",
       //sameSite: "strict", //prevents cross-site request forgery attacks
       maxAge: 15 * 60 * 1000,
