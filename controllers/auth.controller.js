@@ -30,14 +30,12 @@ const setCookie = (res, accessToken, refreshToken) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
-    domain: "https://ecommerce-web-app-y0xh.onrender.com",
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true, //prevents client-side access to the cookie
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
-    domain: "https://ecommerce-web-app-y0xh.onrender.com",
   });
 };
 
@@ -174,7 +172,6 @@ export const refreshToken = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict", //prevents cross-site request forgery attacks
       maxAge: 15 * 60 * 1000,
-      domain: "https://ecommerce-web-app-y0xh.onrender.com",
     });
     res.status(200).json({ message: "access token refreshed successfully" });
   } catch (error) {
