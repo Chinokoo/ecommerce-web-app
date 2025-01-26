@@ -17,7 +17,10 @@ const app = express();
 //middlewares
 app.use(
   cors({
-    origin: ["https://mens-wear-2lmy.onrender.com", "http://localhost:5173/"],
+    origin: [
+      "http://localhost:5173/",
+      "https://ecommerce-web-app-frontend-ashy.vercel.app/",
+    ],
     //credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
