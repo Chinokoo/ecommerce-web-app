@@ -55,10 +55,8 @@ export const createCheckoutSession = async (req, res) => {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url:
-        "https://ecommerce-web-app-frontend-ashy.vercel.app/success?session_id={CHECKOUT_SESSION_ID}",
-      cancel_url:
-        "https://ecommerce-web-app-frontend-ashy.vercel.app/purchase-cancel",
+      success_url: success_url,
+      cancel_url: cancel_url,
       discounts: coupon
         ? [{ coupon: await createStripeCoupon(coupon.discountPercentage) }]
         : [],
