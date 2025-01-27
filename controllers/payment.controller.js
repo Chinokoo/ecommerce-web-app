@@ -5,6 +5,18 @@ import User from "../models/user.model.js";
 
 export const createCheckoutSession = async (req, res) => {
   try {
+    const success_url =
+      process.env.NODE_ENV === "production"
+        ? `https://ecommerce-web-app-frontend-ashy.vercel.app/success?session_id={CHECKOUT_SESSION_ID}`
+        : `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
+
+    //https://ecommerce-web-app-frontend-ashy.vercel.app/success?session_id=cs_test_a1nKSFJC7O6HVMPvmoECLoOCdzngTLHPgvGJ140UWMSliUNbc2GwaaPBg9
+
+    const cancel_url =
+      process.env.NODE_ENV === "production"
+        ? "https://ecommerce-web-app-frontend-ashy.vercel.app/purchase-cancel"
+        : `${process.env.CLIENT_URL}/purchase-cancel`;
+
     const { products, couponCode } = req.body;
     if (!Array.isArray(products) || products.length === 0)
       return res.status(400).json({ error: "invalid or empty products array" });
@@ -44,15 +56,8 @@ export const createCheckoutSession = async (req, res) => {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url:
-        process.env.NODE_ENV === "production"
-          ? `https://ecommerce-web-app-frontend-ashy.vercel.app/success?session_id={CHECKOUT_SESSION_ID}`
-          : `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:
-        process.env.NODE_ENV === "production"
-          ? "https://ecommerce-web-app-frontend-ashy.vercel.app/purchase-cancel"
-          : `${process.env.CLIENT_URL}/purchase-cancel`,
-
+      success_url: success_url,
+      cancel_url: cancel_url,
       discounts: coupon
         ? [{ coupon: await createStripeCoupon(coupon.discountPercentage) }]
         : [],
