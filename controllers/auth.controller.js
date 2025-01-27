@@ -1,6 +1,9 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { redis } from "../utils/redis.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 //function to generate access and refresh tokens
 const generateToken = (userId) => {
@@ -29,14 +32,14 @@ const setCookie = (res, accessToken, refreshToken) => {
     httpOnly: true,
     credentials: true, //prevents client-side access to the cookie
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax", //prevents cross-site request forgery attacks
+    sameSite: "none", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
   });
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true, //prevents client-side access to the cookie
     credentials: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax", //prevents cross-site request forgery attacks
+    sameSite: "none", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
   });
 };
@@ -173,7 +176,7 @@ export const refreshToken = async (req, res) => {
       httpOnly: true,
       credentials: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", //prevents cross-site request forgery attacks
+      sameSite: "none", //prevents cross-site request forgery attacks
       maxAge: 15 * 60 * 1000,
     });
     res.status(200).json({ message: "access token refreshed successfully" });
@@ -185,6 +188,7 @@ export const refreshToken = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
+    console.log(req.user);
     res.json(req.user);
   } catch (error) {
     console.log("error in getProfile", error.message);
