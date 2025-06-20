@@ -1,6 +1,5 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { redis } from "../utils/redis.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,34 +9,15 @@ const generateToken = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
     expiresIn: "15m",
   });
-  const refreshToken = jwt.sign({ userId }, process.env.REFRESH_SECRET_TOKEN, {
-    expiresIn: "7d",
-  });
 
-  return { accessToken, refreshToken };
+  return { accessToken };
 };
 
-//storing the refresh token in redis
-const storeRefreshToken = async (userId, refreshToken) => {
-  await redis.set(
-    `refresh_token:${userId}`,
-    refreshToken,
-    "EX",
-    7 * 24 * 60 * 60
-  ); // 7 days expiry date.
-};
 //setting cookies for accessToken and refreshToken
-const setCookie = (res, accessToken, refreshToken) => {
+const setCookie = (res, accessToken) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     credentials: true, //prevents client-side access to the cookie
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none", //prevents cross-site request forgery attacks
-    maxAge: 15 * 60 * 1000,
-  });
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true, //prevents client-side access to the cookie
-    credentials: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "none", //prevents cross-site request forgery attacks
     maxAge: 15 * 60 * 1000,
@@ -74,9 +54,8 @@ export const signup = async (req, res) => {
     });
 
     //authenticate user.
-    const { accessToken, refreshToken } = generateToken(user._id);
-    await storeRefreshToken(user._id, refreshToken);
-    setCookie(res, accessToken, refreshToken);
+    const { accessToken } = generateToken(user._id);
+    setCookie(res, accessToken);
 
     res.status(201).json({
       user: {
@@ -108,10 +87,9 @@ export const signin = async (req, res) => {
         .json({ message: "Invalid Credentials, try again" });
 
     if (user && (await user.comparePassword(password))) {
-      const { accessToken, refreshToken } = generateToken(user._id);
+      const { accessToken } = generateToken(user._id);
 
-      await storeRefreshToken(user._id, refreshToken);
-      setCookie(res, accessToken, refreshToken);
+      setCookie(res, accessToken);
 
       res.status(200).json({
         message: "user signed in successfully",
@@ -134,54 +112,10 @@ export const signin = async (req, res) => {
 //signout function
 export const signout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
-    if (refreshToken) {
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.REFRESH_SECRET_TOKEN
-      );
-      await redis.del(`refresh_token:${decoded.userId}`);
-    }
     res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
     res.status(200).json({ message: "user signed out successfully" });
   } catch (e) {
-    res.status(500).json({ message: "internal server error" });
-  }
-};
-
-export const refreshToken = async (req, res) => {
-  try {
-    const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken)
-      return res.status(401).json({ message: "refresh token is missing" });
-
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET_TOKEN);
-    if (!decoded)
-      return res.status(401).json({ message: "Invalid refresh token" });
-
-    const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
-
-    if (storedToken !== refreshToken)
-      return res.status(401).json({ message: "Invalid refresh token" });
-
-    const accessToken = jwt.sign(
-      { userId: decoded.userId },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "15m" }
-    );
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      credentials: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none", //prevents cross-site request forgery attacks
-      maxAge: 15 * 60 * 1000,
-    });
-    res.status(200).json({ message: "access token refreshed successfully" });
-  } catch (error) {
-    console.log(error.message);
+    console.log("error in signout function", e);
     res.status(500).json({ message: "internal server error" });
   }
 };
