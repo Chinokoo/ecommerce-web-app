@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-//function to generate access and refresh tokens
+//function to generate access and tokens
 const generateToken = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET_KEY, {
     expiresIn: "15m",
