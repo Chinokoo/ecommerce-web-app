@@ -1,6 +1,5 @@
 import Product from "../models/product.model.js";
 import cloudinary from "../utils/cloudinary.js";
-import { redis } from "../utils/redis.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -44,16 +43,10 @@ export const getProducts = async (req, res) => {
 };
 export const getFeaturedProducts = async (req, res) => {
   try {
-    let products = await redis.get("featured_products");
-
-    if (products) return res.json(JSON.parse(products));
-
     products = await Product.find({ isFeatured: true }).lean();
 
     if (!products)
       return res.status(404).json({ message: "Featured products not found" });
-
-    await redis.set("featured_products", JSON.stringify(products));
 
     res.status(200).json({ products });
   } catch (error) {
@@ -134,7 +127,6 @@ export const toggleFeaturedProduct = async (req, res) => {
 async function updateFeaturedProductsCache() {
   try {
     const featuredProducts = await Product.find({ isFeatured: true }).lean(); // the lean() method is used to return a plain object instead of a mongoose document to significantly improve performance.
-    await redis.set("featured_products", JSON.stringify(featuredProducts));
   } catch (error) {
     console.log("error in updateFeaturedProductsCache", error);
   }

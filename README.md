@@ -39,7 +39,6 @@ variables:
 PORT=3001
 MONGODB_URI=your mongodb url
 
-REDIS_URL=your redis server url
 
 JWT_SECRET_KEY=your jwt key
 
